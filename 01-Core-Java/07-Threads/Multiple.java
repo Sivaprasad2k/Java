@@ -1,3 +1,14 @@
+public class Multiple {
+    public static void main(String[] args) {
+        A obj1 = new A();
+        B obj2 = new B();
+
+        // Call start() to execute concurrently on separate threads
+        obj1.start();
+        obj2.start();
+    }
+}
+
 class A extends Thread {
     @Override
     public void run() {
@@ -28,13 +39,3 @@ class B extends Thread {
     }
 }
 
-public class Multiple {
-    public static void main(String[] args) {
-        A obj1 = new A();
-        B obj2 = new B();
-
-        // Call start() to execute concurrently on separate threads
-        obj1.start();
-        obj2.start();
-    }
-}

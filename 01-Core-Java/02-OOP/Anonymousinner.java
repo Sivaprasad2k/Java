@@ -1,7 +1,3 @@
-abstract class A {
-    public abstract void show();
-}
-
 public class Anonymousinner {
     public static void main(String x[]) {
         A obj = new A() {
@@ -14,3 +10,8 @@ public class Anonymousinner {
 
     }
 }
+
+abstract class A {
+    public abstract void show();
+}
+

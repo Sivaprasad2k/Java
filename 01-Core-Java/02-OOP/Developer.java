@@ -1,3 +1,12 @@
+public class Developer {
+    public static void main(String a[]) {
+        Devops siva = new Devops();
+        Computer lap = new Laptop();
+        Computer desk = new Desktop();
+        siva.devApp(desk);
+    }
+}
+
 interface Computer {
 
     public abstract void code();
@@ -24,11 +33,3 @@ class Devops {
     }
 }
 
-public class Developer {
-    public static void main(String a[]) {
-        Devops siva = new Devops();
-        Computer lap = new Laptop();
-        Computer desk = new Desktop();
-        siva.devApp(desk);
-    }
-}
