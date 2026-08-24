@@ -1,0 +1,52 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class Sort {
+    public static void main(String[] args) {
+
+        // Using Lambda Expression for Comparator (since Comparator is a @FunctionalInterface)
+        Comparator<Student> com = (a, b) -> a.age > b.age ? 1 : -1;
+
+        List<Student> studs = new ArrayList<>();
+
+        studs.add(new Student(23, "Dasarp"));
+        studs.add(new Student(20, "Siva"));
+        studs.add(new Student(21, "Prasad"));
+        studs.add(new Student(22, "Avis"));
+
+        // Sort using Comparator
+        Collections.sort(studs, com);
+
+        for (Student s : studs) {
+            System.out.println(s);
+        }
+    }
+}
+
+class Student implements Comparable<Student> {
+    int age;
+    String name;
+
+    Student(int age, String name) {
+        this.age = age;
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name + " : " + age;
+    }
+
+    @Override
+    public int compareTo(Student that) {
+        if (this.age > that.age) {
+            return 1;
+        } else if (this.age < that.age) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+}
