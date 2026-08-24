@@ -6,6 +6,9 @@ public class Maps {
     {
       Map<String , Integer> students = new HashMap<>();
 
+      // For synchronization use Hashtable() instead of HashMap() 
+     
+
       students.put("Siva",22);
       students.put("Prasad",24);
       students.put("Avis",26);

@@ -6,7 +6,7 @@ import java.util.List;
 public class Sort {
     public static void main(String[] args) {
 
-        // Using Lambda Expression for Comparator (since Comparator is a @FunctionalInterface)
+        // Using Lambda Expression for Comparator
         Comparator<Student> com = (a, b) -> a.age > b.age ? 1 : -1;
 
         List<Student> studs = new ArrayList<>();
