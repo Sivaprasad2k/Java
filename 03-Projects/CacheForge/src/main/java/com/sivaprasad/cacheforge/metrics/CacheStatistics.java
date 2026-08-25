@@ -1,76 +1,79 @@
 package com.sivaprasad.cacheforge.metrics;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Encapsulates performance metrics and operational counters for a cache instance.
+ * Thread-safe implementation utilizing AtomicLong CAS (Compare-And-Swap) counters.
  */
 public class CacheStatistics {
 
-    private long hits;
-    private long misses;
-    private long puts;
-    private long removals;
-    private long evictions;
-    private long expirations;
+    private final AtomicLong hits;
+    private final AtomicLong misses;
+    private final AtomicLong puts;
+    private final AtomicLong removals;
+    private final AtomicLong evictions;
+    private final AtomicLong expirations;
 
     public CacheStatistics() {
-        this.hits = 0;
-        this.misses = 0;
-        this.puts = 0;
-        this.removals = 0;
-        this.evictions = 0;
-        this.expirations = 0;
+        this.hits = new AtomicLong(0);
+        this.misses = new AtomicLong(0);
+        this.puts = new AtomicLong(0);
+        this.removals = new AtomicLong(0);
+        this.evictions = new AtomicLong(0);
+        this.expirations = new AtomicLong(0);
     }
 
     public void recordHit() {
-        hits++;
+        hits.incrementAndGet();
     }
 
     public void recordMiss() {
-        misses++;
+        misses.incrementAndGet();
     }
 
     public void recordPut() {
-        puts++;
+        puts.incrementAndGet();
     }
 
     public void recordRemoval() {
-        removals++;
+        removals.incrementAndGet();
     }
 
     public void recordEviction() {
-        evictions++;
+        evictions.incrementAndGet();
     }
 
     public void recordExpiration() {
-        expirations++;
+        expirations.incrementAndGet();
     }
 
     public long getHits() {
-        return hits;
+        return hits.get();
     }
 
     public long getMisses() {
-        return misses;
+        return misses.get();
     }
 
     public long getPuts() {
-        return puts;
+        return puts.get();
     }
 
     public long getRemovals() {
-        return removals;
+        return removals.get();
     }
 
     public long getEvictions() {
-        return evictions;
+        return evictions.get();
     }
 
     public long getExpirations() {
-        return expirations;
+        return expirations.get();
     }
 
     public long getTotalRequests() {
-        return hits + misses;
+        return hits.get() + misses.get();
     }
 
     public double getHitRatio() {
@@ -78,14 +81,14 @@ public class CacheStatistics {
         if (total == 0) {
             return 0.0;
         }
-        return ((double) hits / total) * 100.0;
+        return ((double) hits.get() / total) * 100.0;
     }
 
     @Override
     public String toString() {
         return String.format(
             "CacheStatistics[Hits: %d, Misses: %d, Puts: %d, Removals: %d, Evictions: %d, Expirations: %d, Hit Ratio: %.2f%%]",
-            hits, misses, puts, removals, evictions, expirations, getHitRatio()
+            hits.get(), misses.get(), puts.get(), removals.get(), evictions.get(), expirations.get(), getHitRatio()
         );
     }
 }

@@ -7,12 +7,13 @@ import com.sivaprasad.cacheforge.expiration.ExpirationManager;
 import com.sivaprasad.cacheforge.metrics.CacheStatistics;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Generic in-memory cache implementation supporting LRU eviction, passive/active TTL expiration, and metrics.
+ * Thread-safe generic in-memory cache implementation supporting ConcurrentHashMap storage,
+ * LRU eviction, passive/active TTL expiration, and CAS metrics.
  *
  * @param <K> Key type.
  * @param <V> Value type.
@@ -42,7 +43,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
         }
         this.config = config;
         this.evictionPolicy = evictionPolicy;
-        this.storage = new HashMap<>();
+        this.storage = new ConcurrentHashMap<>();
         this.statistics = new CacheStatistics();
         this.expirationManager = new ExpirationManager();
 

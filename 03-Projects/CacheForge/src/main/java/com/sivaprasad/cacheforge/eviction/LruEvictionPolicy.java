@@ -2,15 +2,13 @@ package com.sivaprasad.cacheforge.eviction;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Least Recently Used (LRU) Eviction Policy implemented using a custom Doubly Linked List
- * combined with a HashMap lookup table.
+ * combined with a HashMap lookup table. Thread-safe implementation guarded by a ReentrantLock.
  *
  * Guarantees O(1) time complexity for access, insertion, deletion, and eviction operations.
- *
- * Data Structure Layout:
- * [Head Dummy (MRU)] <---> Node(key1) <---> Node(key2) <---> [Tail Dummy (LRU)]
  *
  * @param <K> Type of key tracked.
  */
@@ -29,6 +27,7 @@ public class LruEvictionPolicy<K> implements EvictionPolicy<K> {
     private final Map<K, Node<K>> nodeMap;
     private final Node<K> head;
     private final Node<K> tail;
+    private final ReentrantLock lock;
 
     public LruEvictionPolicy() {
         this.nodeMap = new HashMap<>();
@@ -36,55 +35,81 @@ public class LruEvictionPolicy<K> implements EvictionPolicy<K> {
         this.tail = new Node<>(null);
         this.head.next = tail;
         this.tail.prev = head;
+        this.lock = new ReentrantLock();
     }
 
     @Override
     public void keyAccessed(K key) {
         if (key == null) return;
-        Node<K> node = nodeMap.get(key);
-        if (node != null) {
-            moveToHead(node);
+        lock.lock();
+        try {
+            Node<K> node = nodeMap.get(key);
+            if (node != null) {
+                moveToHead(node);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public void keyInserted(K key) {
         if (key == null) return;
-        Node<K> existingNode = nodeMap.get(key);
-        if (existingNode != null) {
-            moveToHead(existingNode);
-        } else {
-            Node<K> newNode = new Node<>(key);
-            nodeMap.put(key, newNode);
-            addNodeToHead(newNode);
+        lock.lock();
+        try {
+            Node<K> existingNode = nodeMap.get(key);
+            if (existingNode != null) {
+                moveToHead(existingNode);
+            } else {
+                Node<K> newNode = new Node<>(key);
+                nodeMap.put(key, newNode);
+                addNodeToHead(newNode);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public void keyRemoved(K key) {
         if (key == null) return;
-        Node<K> node = nodeMap.remove(key);
-        if (node != null) {
-            removeNode(node);
+        lock.lock();
+        try {
+            Node<K> node = nodeMap.remove(key);
+            if (node != null) {
+                removeNode(node);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public K evictKey() {
-        if (tail.prev == head) {
-            return null; // Empty policy tracking
+        lock.lock();
+        try {
+            if (tail.prev == head) {
+                return null; // Empty policy tracking
+            }
+            Node<K> lruNode = tail.prev;
+            removeNode(lruNode);
+            nodeMap.remove(lruNode.key);
+            return lruNode.key;
+        } finally {
+            lock.unlock();
         }
-        Node<K> lruNode = tail.prev;
-        removeNode(lruNode);
-        nodeMap.remove(lruNode.key);
-        return lruNode.key;
     }
 
     @Override
     public void clear() {
-        nodeMap.clear();
-        head.next = tail;
-        tail.prev = head;
+        lock.lock();
+        try {
+            nodeMap.clear();
+            head.next = tail;
+            tail.prev = head;
+        } finally {
+            lock.unlock();
+        }
     }
 
     // Helper method to add node directly after head (MRU position) - O(1)

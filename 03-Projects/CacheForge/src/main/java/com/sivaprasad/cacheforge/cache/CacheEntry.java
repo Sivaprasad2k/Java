@@ -1,24 +1,27 @@
 package com.sivaprasad.cacheforge.cache;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Domain entity wrapping a cached value with metadata such as timestamps, access metrics, and TTL expiration.
+ * Thread-safe implementation utilizing volatile visibility and AtomicLong access counters.
  *
  * @param <V> Type of value held in the entry.
  */
 public class CacheEntry<V> {
 
-    private V value;
+    private volatile V value;
     private final long createdAt;
-    private long lastAccessedAt;
-    private long accessCount;
-    private long expireAtTimestamp; // -1 indicates no expiration
+    private volatile long lastAccessedAt;
+    private final AtomicLong accessCount;
+    private volatile long expireAtTimestamp; // -1 indicates no expiration
 
     public CacheEntry(V value) {
         this.value = value;
         long now = System.currentTimeMillis();
         this.createdAt = now;
         this.lastAccessedAt = now;
-        this.accessCount = 0;
+        this.accessCount = new AtomicLong(0);
         this.expireAtTimestamp = -1;
     }
 
@@ -34,7 +37,7 @@ public class CacheEntry<V> {
 
     public void recordAccess() {
         this.lastAccessedAt = System.currentTimeMillis();
-        this.accessCount++;
+        this.accessCount.incrementAndGet();
     }
 
     public void setTtlSeconds(long seconds) {
@@ -46,14 +49,16 @@ public class CacheEntry<V> {
     }
 
     public boolean isExpired() {
-        return expireAtTimestamp != -1 && System.currentTimeMillis() > expireAtTimestamp;
+        long expireAt = this.expireAtTimestamp;
+        return expireAt != -1 && System.currentTimeMillis() > expireAt;
     }
 
     public long getTtlSeconds() {
-        if (expireAtTimestamp == -1) {
+        long expireAt = this.expireAtTimestamp;
+        if (expireAt == -1) {
             return -1; // No expiration configured
         }
-        long remainingMs = expireAtTimestamp - System.currentTimeMillis();
+        long remainingMs = expireAt - System.currentTimeMillis();
         if (remainingMs <= 0) {
             return -2; // Expired
         }
@@ -69,7 +74,7 @@ public class CacheEntry<V> {
     }
 
     public long getAccessCount() {
-        return accessCount;
+        return accessCount.get();
     }
 
     public long getExpireAtTimestamp() {
@@ -82,7 +87,7 @@ public class CacheEntry<V> {
                 "value=" + value +
                 ", createdAt=" + createdAt +
                 ", lastAccessedAt=" + lastAccessedAt +
-                ", accessCount=" + accessCount +
+                ", accessCount=" + accessCount.get() +
                 ", expireAtTimestamp=" + expireAtTimestamp +
                 '}';
     }
