@@ -10,6 +10,7 @@ public class CacheStatistics {
     private long puts;
     private long removals;
     private long evictions;
+    private long expirations;
 
     public CacheStatistics() {
         this.hits = 0;
@@ -17,6 +18,7 @@ public class CacheStatistics {
         this.puts = 0;
         this.removals = 0;
         this.evictions = 0;
+        this.expirations = 0;
     }
 
     public void recordHit() {
@@ -39,6 +41,10 @@ public class CacheStatistics {
         evictions++;
     }
 
+    public void recordExpiration() {
+        expirations++;
+    }
+
     public long getHits() {
         return hits;
     }
@@ -59,6 +65,10 @@ public class CacheStatistics {
         return evictions;
     }
 
+    public long getExpirations() {
+        return expirations;
+    }
+
     public long getTotalRequests() {
         return hits + misses;
     }
@@ -74,8 +84,8 @@ public class CacheStatistics {
     @Override
     public String toString() {
         return String.format(
-            "CacheStatistics[Hits: %d, Misses: %d, Puts: %d, Removals: %d, Evictions: %d, Hit Ratio: %.2f%%]",
-            hits, misses, puts, removals, evictions, getHitRatio()
+            "CacheStatistics[Hits: %d, Misses: %d, Puts: %d, Removals: %d, Evictions: %d, Expirations: %d, Hit Ratio: %.2f%%]",
+            hits, misses, puts, removals, evictions, expirations, getHitRatio()
         );
     }
 }

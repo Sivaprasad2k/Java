@@ -5,49 +5,60 @@ import com.sivaprasad.cacheforge.cache.InMemoryCache;
 import com.sivaprasad.cacheforge.config.CacheConfig;
 
 /**
- * CacheForge Phase 3 Verification Application testing LRU Eviction & Capacity Bounds.
+ * CacheForge Phase 4 Verification Application testing TTL & Key Expiration.
  */
 public class CacheForgeApplication {
 
     public static void main(String[] args) {
         System.out.println("==========================================");
-        System.out.println(" CacheForge Engine - Phase 3 Verification");
+        System.out.println(" CacheForge Engine - Phase 4 Verification");
         System.out.println("==========================================");
 
-        // Configure a cache with maximum capacity of 3 entries
-        CacheConfig config = new CacheConfig(3, true);
-        Cache<String, String> lruCache = new InMemoryCache<>(config);
+        CacheConfig config = new CacheConfig(100, true);
+        Cache<String, String> cache = new InMemoryCache<>(config);
 
-        System.out.println("\n[1] Populating cache up to capacity (maxCapacity = 3)...");
-        lruCache.put("k1", "Value-1");
-        lruCache.put("k2", "Value-2");
-        lruCache.put("k3", "Value-3");
+        try {
+            // 1. SET with TTL
+            System.out.println("\n[1] Storing entries with and without TTL...");
+            cache.put("session:101", "SIVA_AUTH_TOKEN", 2); // 2 seconds TTL
+            cache.put("config:theme", "dark");             // No TTL (-1)
 
-        System.out.println("Initial Size: " + lruCache.size() + " (Keys: k1, k2, k3)");
+            System.out.println("GET session:101 -> " + cache.get("session:101"));
+            System.out.println("TTL session:101 -> " + cache.getTtl("session:101") + " seconds");
+            System.out.println("TTL config:theme -> " + cache.getTtl("config:theme") + " (No expiration)");
 
-        // Access k1 to make it Most Recently Used (MRU)
-        // Access Order (MRU -> LRU): k1 -> k3 -> k2
-        System.out.println("\n[2] Accessing key 'k1' to promote it to MRU...");
-        System.out.println("GET k1 -> " + lruCache.get("k1"));
+            // 2. EXPIRE command on existing key
+            System.out.println("\n[2] Applying EXPIRE command to 'config:theme' for 3 seconds...");
+            boolean expireStatus = cache.expire("config:theme", 3);
+            System.out.println("EXPIRE config:theme 3 -> Success: " + expireStatus);
+            System.out.println("TTL config:theme      -> " + cache.getTtl("config:theme") + " seconds");
 
-        // Insert 4th key 'k4' which triggers LRU eviction of 'k2'
-        System.out.println("\n[3] Inserting 4th key 'k4' (Triggering Eviction)...");
-        lruCache.put("k4", "Value-4");
+            // 3. Wait for TTL expiration (Sleep 2.2 seconds)
+            System.out.println("\n[3] Sleeping for 2.2 seconds to allow 'session:101' to expire...");
+            Thread.sleep(2200);
 
-        System.out.println("Size after insertion: " + lruCache.size());
+            // 4. Verify Expiration
+            System.out.println("\n[4] Verifying Expiration Outcomes...");
+            System.out.println("GET session:101 -> " + cache.get("session:101") + " (Expected: null - EXPIRED!)");
+            System.out.println("TTL session:101 -> " + cache.getTtl("session:101") + " (Expected: -2 - Expired/Not Found)");
+            System.out.println("GET config:theme -> " + cache.get("config:theme") + " (Still valid)");
+            System.out.println("TTL config:theme -> " + cache.getTtl("config:theme") + " seconds remaining");
 
-        // Verify eviction results
-        System.out.println("\n[4] Verifying Eviction Outcomes...");
-        System.out.println("GET k1 -> " + lruCache.get("k1") + " (Retained as MRU)");
-        System.out.println("GET k2 -> " + lruCache.get("k2") + " (Expected: null - EVICTED!)");
-        System.out.println("GET k3 -> " + lruCache.get("k3") + " (Retained)");
-        System.out.println("GET k4 -> " + lruCache.get("k4") + " (Retained - Newly inserted)");
+            // 5. Expiration Statistics
+            System.out.println("\n[5] Cache Statistics:");
+            System.out.println(cache.getStatistics());
 
-        System.out.println("\n[5] Performance & Eviction Metrics:");
-        System.out.println(lruCache.getStatistics());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Execution interrupted: " + e.getMessage());
+        } finally {
+            // Clean up background expiration threads
+            cache.shutdown();
+            System.out.println("\n[6] Expiration Manager background executor cleanly shut down.");
+        }
 
         System.out.println("\n==========================================");
-        System.out.println(" Phase 3 Verification Completed Successfully!");
+        System.out.println(" Phase 4 Verification Completed Successfully!");
         System.out.println("==========================================");
     }
 }

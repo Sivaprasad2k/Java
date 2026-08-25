@@ -1,7 +1,7 @@
 package com.sivaprasad.cacheforge.cache;
 
 /**
- * Domain entity wrapping a cached value with metadata such as timestamps and access metrics.
+ * Domain entity wrapping a cached value with metadata such as timestamps, access metrics, and TTL expiration.
  *
  * @param <V> Type of value held in the entry.
  */
@@ -11,6 +11,7 @@ public class CacheEntry<V> {
     private final long createdAt;
     private long lastAccessedAt;
     private long accessCount;
+    private long expireAtTimestamp; // -1 indicates no expiration
 
     public CacheEntry(V value) {
         this.value = value;
@@ -18,6 +19,7 @@ public class CacheEntry<V> {
         this.createdAt = now;
         this.lastAccessedAt = now;
         this.accessCount = 0;
+        this.expireAtTimestamp = -1;
     }
 
     public V getValue() {
@@ -35,6 +37,29 @@ public class CacheEntry<V> {
         this.accessCount++;
     }
 
+    public void setTtlSeconds(long seconds) {
+        if (seconds > 0) {
+            this.expireAtTimestamp = System.currentTimeMillis() + (seconds * 1000);
+        } else {
+            this.expireAtTimestamp = -1;
+        }
+    }
+
+    public boolean isExpired() {
+        return expireAtTimestamp != -1 && System.currentTimeMillis() > expireAtTimestamp;
+    }
+
+    public long getTtlSeconds() {
+        if (expireAtTimestamp == -1) {
+            return -1; // No expiration configured
+        }
+        long remainingMs = expireAtTimestamp - System.currentTimeMillis();
+        if (remainingMs <= 0) {
+            return -2; // Expired
+        }
+        return (remainingMs + 999) / 1000; // Ceil remaining seconds
+    }
+
     public long getCreatedAt() {
         return createdAt;
     }
@@ -47,6 +72,10 @@ public class CacheEntry<V> {
         return accessCount;
     }
 
+    public long getExpireAtTimestamp() {
+        return expireAtTimestamp;
+    }
+
     @Override
     public String toString() {
         return "CacheEntry{" +
@@ -54,6 +83,7 @@ public class CacheEntry<V> {
                 ", createdAt=" + createdAt +
                 ", lastAccessedAt=" + lastAccessedAt +
                 ", accessCount=" + accessCount +
+                ", expireAtTimestamp=" + expireAtTimestamp +
                 '}';
     }
 }
