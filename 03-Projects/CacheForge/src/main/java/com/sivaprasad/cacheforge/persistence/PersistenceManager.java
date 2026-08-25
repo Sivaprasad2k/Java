@@ -42,8 +42,8 @@ public class PersistenceManager<K, V> {
                 CacheEntry<V> entry = mapEntry.getValue();
                 if (entry != null && !entry.isExpired()) {
                     String line = String.format("%s|%s|%d",
-                            mapEntry.getKey(),
-                            entry.getValue(),
+                            escape(mapEntry.getKey()),
+                            escape(entry.getValue()),
                             entry.getExpireAtTimestamp());
                     writer.write(line);
                     writer.newLine();
@@ -72,14 +72,20 @@ public class PersistenceManager<K, V> {
                     continue; // Skip comments and empty lines
                 }
 
-                String[] parts = line.split("\\|", 3);
+                // Split by unescaped pipe
+                String[] parts = line.split("(?<!\\\\)\\|", 3);
                 if (parts.length < 3) {
                     continue; // Skip malformed lines
                 }
 
-                K key = (K) parts[0];
-                V value = (V) parts[1];
-                long expireAtTimestamp = Long.parseLong(parts[2]);
+                K key = (K) unescape(parts[0]);
+                V value = (V) unescape(parts[1]);
+                long expireAtTimestamp;
+                try {
+                    expireAtTimestamp = Long.parseLong(parts[2].trim());
+                } catch (NumberFormatException e) {
+                    continue; // Skip corrupted numeric fields
+                }
 
                 if (expireAtTimestamp != -1) {
                     long remainingMs = expireAtTimestamp - System.currentTimeMillis();
@@ -95,5 +101,22 @@ public class PersistenceManager<K, V> {
             }
         }
         return restoredCount;
+    }
+
+    private String escape(Object input) {
+        if (input == null) return "";
+        return input.toString()
+                .replace("\\", "\\\\")
+                .replace("|", "\\|")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
+    }
+
+    private String unescape(String input) {
+        if (input == null) return "";
+        return input.replace("\\r", "\r")
+                .replace("\\n", "\n")
+                .replace("\\|", "|")
+                .replace("\\\\", "\\");
     }
 }
