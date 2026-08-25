@@ -1,6 +1,6 @@
-# Java & Spring Boot Learning
+# Core & Advanced Java Learning
 
-This repository contains my **hands-on learning journey with Java and Spring Boot**, following tutorials and practical lessons from **Telusko**.
+This repository contains my **hands-on learning journey with Core Java and Advanced Java**, focusing on fundamental concepts, practical code examples, and projects.
 
 The purpose of this repository is simple: **learn by writing code, experimenting with concepts, and maintaining a visible record of my progress.**
 
@@ -8,24 +8,17 @@ The purpose of this repository is simple: **learn by writing code, experimenting
 
 ## What I'm Learning
 
-The repository covers my progression through Java and Spring Boot, including:
+The repository covers my progression through Core Java and Advanced Java, including:
 
-* Core Java
-* Object-Oriented Programming
-* Java Collections
+* Core Java Syntax & Fundamentals
+* Object-Oriented Programming (OOP)
+* Java Collections Framework (Lists, Sets, Maps)
 * Exception Handling
 * Generics
-* Multithreading and Concurrency
-* Java 8+ features
-* Streams and Lambda Expressions
-* JDBC
-* SQL and Database Connectivity
-* Spring Framework
-* Spring Boot
-* REST APIs
-* Spring Data JPA
-* Hibernate
-* Backend application development
+* Multithreading & Concurrency
+* Java 8+ Features & Functional Interfaces
+* Streams API (Filter, Map, Reduce, Sort)
+* Practical Java Console Projects
 
 The exact topics and depth will evolve as I progress through the learning material.
 
@@ -51,7 +44,7 @@ The code in this repository represents my actual learning and experimentation ra
 
 ## Repository Structure
 
-The structure intentionally follows my learning progression instead of forcing a predefined architecture.
+The structure intentionally follows my learning progression:
 
 ```text
 Java-Springboot/
@@ -63,15 +56,17 @@ Java-Springboot/
 │   ├── 04-Exceptions/
 │   ├── 05-Data-Structures/
 │   ├── 06-Lambda-Expressions/
-│   └── 07-Threads/
+│   ├── 07-Threads/
+│   └── Collections/
 │
 ├── 02-Advanced-Java/
+│   ├── FilterMethod.java
+│   ├── MapMethod.java
+│   ├── ReduceMethod.java
+│   ├── Sort.java
+│   └── Streams.java
 │
-├── 03-Spring/
-│
-├── 04-Spring-Boot/
-│
-├── 05-Projects/
+├── 03-Projects/
 │
 ├── README.md
 └── .gitignore
@@ -79,60 +74,40 @@ Java-Springboot/
 
 The directory structure may change as the learning journey progresses.
 
-## Learning Source
+## Source of Study
 
-Primary learning source:
+Primary source of study:
 
 **Telusko**
 
-The repository follows the concepts covered through the tutorials while allowing me to implement, modify, and experiment with the examples independently.
+The repository follows the concepts covered through the study material while allowing me to implement, modify, and experiment with the examples independently.
 
 ## Why I'm Maintaining This Repository
 
 This repository serves several purposes:
 
-* Track my progress while learning Java and Spring Boot.
+* Track my progress while learning Core and Advanced Java.
 * Practice writing Java code consistently.
-* Reinforce concepts through implementation.
-* Build familiarity with the Java ecosystem.
-* Maintain a reference for future revision.
-* Develop the foundation required for backend engineering projects.
-
-This repository is intentionally separate from my larger application projects. Those projects demonstrate **application development**, while this repository records the **fundamentals and technologies I am learning to build those applications**.
-
-## Related Projects
-
-The concepts learned here are later applied in my larger projects, including:
-
-* **Krishi** – Workflow-driven agriculture operations platform
-* **CareerPath** – Job application and interview tracking platform
-* **Real Estate Hub** – Full-stack property management platform
+* Reinforce concepts through hands-on implementation.
+* Build familiarity with Java standard libraries and modern features.
+* Maintain a clean reference for future revision.
 
 ## Progress
 
-This repository is continuously updated as I progress through the Java and Spring Boot learning material.
+This repository is continuously updated as I progress through the Java learning material.
 
 ```text
-Java
- █████████████████░░░
+Core Java
+ ████████████████████░
 
-Spring Boot
- ███████████░░░░░░░░░
+Advanced Java
+ ██████████████░░░░░░░
 
-Backend Development
- ██████████░░░░░░░░░░
+Java Projects
+ ██████████░░░░░░░░░░░
 ```
-
-The progress indicators are intentionally approximate and will change as the repository develops.
-
-## Disclaimer
-
-This repository is primarily for **learning and practice**.
-
-The implementations may contain experiments, incomplete examples, or code written specifically to understand a particular concept. They should not be treated as production-ready implementations.
 
 ---
 
-**Learning:** Java & Spring Boot
-**Primary Resource:** Telusko
+**Learning:** Core & Advanced Java  
 **Purpose:** Learning, experimentation, practice, and revision
