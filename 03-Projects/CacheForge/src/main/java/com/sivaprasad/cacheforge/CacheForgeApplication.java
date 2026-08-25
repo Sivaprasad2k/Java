@@ -7,12 +7,16 @@ import com.sivaprasad.cacheforge.config.CacheConfig;
 
 /**
  * CacheForge Main Application Launcher.
+ * Java 17 implementation.
  */
 public class CacheForgeApplication {
 
+    // Java 17 record for generic object testing
+    public record User(int id, String name, String role) {}
+
     public static void main(String[] args) {
-        CacheConfig config = new CacheConfig(10000, true);
-        InMemoryCache<String, String> cache = new InMemoryCache<>(config);
+        var config = new CacheConfig(10000, true);
+        var cache = new InMemoryCache<String, String>(config);
 
         if (args.length > 0 && "--cli".equalsIgnoreCase(args[0])) {
             try {
@@ -21,9 +25,10 @@ public class CacheForgeApplication {
                 cache.shutdown();
             }
         } else {
-            System.out.println("==========================================");
-            System.out.println(" CacheForge Engine - System Verification");
-            System.out.println("==========================================");
+            System.out.println("""
+                ==========================================
+                 CacheForge Engine - System Verification
+                ==========================================" me""");
 
             // 1. Basic Operations
             cache.put("user:101", "Siva");
@@ -44,9 +49,10 @@ public class CacheForgeApplication {
 
             cache.shutdown();
 
-            System.out.println("\n==========================================");
-            System.out.println(" All Systems Operational! Launch interactive REPL using '--cli'");
-            System.out.println("==========================================");
+            System.out.println("""
+                ==========================================
+                 All Systems Operational! Launch interactive REPL using '--cli'
+                =========================================""");
         }
     }
 }

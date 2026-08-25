@@ -2,47 +2,30 @@ package com.sivaprasad.cacheforge.event;
 
 /**
  * Event payload object representing a cache mutation event.
+ * Java 17 Generic Record implementation.
  *
  * @param <K> Key type.
  * @param <V> Value type.
  */
-public class CacheEvent<K, V> {
-
-    private final EventType type;
-    private final K key;
-    private final V value;
-    private final long timestamp;
+public record CacheEvent<K, V>(EventType type, K key, V value, long timestamp) {
 
     public CacheEvent(EventType type, K key, V value) {
-        this.type = type;
-        this.key = key;
-        this.value = value;
-        this.timestamp = System.currentTimeMillis();
+        this(type, key, value, System.currentTimeMillis());
     }
 
     public EventType getType() {
-        return type;
+        return type();
     }
 
     public K getKey() {
-        return key;
+        return key();
     }
 
     public V getValue() {
-        return value;
+        return value();
     }
 
     public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public String toString() {
-        return "CacheEvent{" +
-                "type=" + type +
-                ", key=" + key +
-                ", value=" + value +
-                ", timestamp=" + timestamp +
-                '}';
+        return timestamp();
     }
 }

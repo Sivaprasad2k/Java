@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @param <K> Type of key tracked.
  */
-public class LruEvictionPolicy<K> implements EvictionPolicy<K> {
+public final class LruEvictionPolicy<K> implements EvictionPolicy<K> {
 
     private static class Node<K> {
         final K key;

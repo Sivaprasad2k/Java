@@ -2,10 +2,11 @@ package com.sivaprasad.cacheforge.eviction;
 
 /**
  * Strategy interface defining eviction policy behavior.
+ * Java 17 Sealed Interface permitting LruEvictionPolicy implementation.
  *
  * @param <K> Type of key managed by the eviction policy.
  */
-public interface EvictionPolicy<K> {
+public sealed interface EvictionPolicy<K> permits LruEvictionPolicy {
 
     /**
      * Called whenever a key is accessed (GET).

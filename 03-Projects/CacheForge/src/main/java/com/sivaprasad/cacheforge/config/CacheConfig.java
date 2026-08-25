@@ -2,39 +2,27 @@ package com.sivaprasad.cacheforge.config;
 
 /**
  * Encapsulates configuration parameters for a Cache instance.
+ * Java 17 Record implementation.
  */
-public class CacheConfig {
+public record CacheConfig(int maxCapacity, boolean statisticsEnabled) {
 
     public static final int DEFAULT_MAX_CAPACITY = 1000;
 
-    private final int maxCapacity;
-    private final boolean statisticsEnabled;
+    public CacheConfig {
+        if (maxCapacity <= 0) {
+            throw new IllegalArgumentException("Max capacity must be greater than zero");
+        }
+    }
 
     public CacheConfig() {
         this(DEFAULT_MAX_CAPACITY, true);
     }
 
-    public CacheConfig(int maxCapacity, boolean statisticsEnabled) {
-        if (maxCapacity <= 0) {
-            throw new IllegalArgumentException("Max capacity must be greater than zero");
-        }
-        this.maxCapacity = maxCapacity;
-        this.statisticsEnabled = statisticsEnabled;
-    }
-
     public int getMaxCapacity() {
-        return maxCapacity;
+        return maxCapacity();
     }
 
     public boolean isStatisticsEnabled() {
-        return statisticsEnabled;
-    }
-
-    @Override
-    public String toString() {
-        return "CacheConfig{" +
-                "maxCapacity=" + maxCapacity +
-                ", statisticsEnabled=" + statisticsEnabled +
-                '}';
+        return statisticsEnabled();
     }
 }
