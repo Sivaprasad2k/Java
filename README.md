@@ -18,7 +18,7 @@ The repository covers my progression through Core Java and Advanced Java, includ
 * Multithreading & Concurrency
 * Java 8+ Features & Functional Interfaces
 * Streams API (Filter, Map, Reduce, Sort)
-* Practical Java Console Projects
+* Practical Java Systems Projects (CacheForge Engine)
 
 The exact topics and depth will evolve as I progress through the learning material.
 
@@ -67,12 +67,26 @@ Java-Springboot/
 │   └── Streams.java
 │
 ├── 03-Projects/
+│   └── CacheForge/       <-- Pure Java In-Memory Caching Engine
 │
 ├── README.md
 └── .gitignore
 ```
 
 The directory structure may change as the learning journey progresses.
+
+## Featured Project: CacheForge
+
+**[CacheForge](03-Projects/CacheForge/README.md)** is a pure Java (Java 17) in-memory key-value caching engine built from first principles before learning Spring / Spring Boot.
+
+Key features implemented:
+- **$O(1)$ LRU Eviction Policy**: Custom HashMap + Doubly Linked List.
+- **TTL & Expiration**: Passive lazy eviction + Active `ScheduledExecutorService` scanner.
+- **Concurrency & Thread Safety**: `ConcurrentHashMap`, `ReentrantLock`, `AtomicLong` CAS counters.
+- **In-Process Event Bus**: Decoupled `EventBus` publishing `CacheEvent` instances to registered subscribers.
+- **Streams API Telemetry**: Queries for top accessed keys, average TTL, and namespace grouping.
+- **File Persistence**: Snapshot serialization via pure Java NIO File I/O.
+- **Interactive REPL Shell**: `CACHEFORGE>` CLI interface with benchmark harness.
 
 ## Source of Study
 
@@ -101,10 +115,10 @@ Core Java
  ████████████████████░
 
 Advanced Java
- ██████████████░░░░░░░
+ ████████████████████░
 
 Java Projects
- ██████████░░░░░░░░░░░
+ ████████████████████░
 ```
 
 ---

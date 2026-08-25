@@ -26,7 +26,7 @@ public class StreamEx {
                             .sum();
         long endPara = System.currentTimeMillis();
 
-        System.out.println(sum1 + " Sequential: " + (endSeq - startSeq) + " ms");
-        System.out.println(sum2 + " Parallel: " + (endPara - startPara) + " ms");
+        System.out.println(sum1 + " Sequential Time: " + (endSeq - startSeq) + " ms");
+        System.out.println(sum2 + " Parallel Time: " + (endPara - startPara) + " ms");
     }
 }
