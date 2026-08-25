@@ -4,54 +4,68 @@ import com.sivaprasad.cacheforge.cache.Cache;
 import com.sivaprasad.cacheforge.cache.InMemoryCache;
 
 /**
- * CacheForge Phase 1 Demonstration & Verification Application.
+ * CacheForge Phase 2 Verification Application demonstrating Generics and Domain Objects.
  */
 public class CacheForgeApplication {
 
+    // Simple custom User class for generic cache demonstration
+    public static class User {
+        private final int id;
+        private final String name;
+        private final String role;
+
+        public User(int id, String name, String role) {
+            this.id = id;
+            this.name = name;
+            this.role = role;
+        }
+
+        public int getId() { return id; }
+        public String getName() { return name; }
+        public String getRole() { return role; }
+
+        @Override
+        public String toString() {
+            return "User{id=" + id + ", name='" + name + "', role='" + role + "'}";
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println("==========================================");
-        System.out.println(" CacheForge Engine - Phase 1 Verification");
+        System.out.println(" CacheForge Engine - Phase 2 Verification");
         System.out.println("==========================================");
 
-        Cache cache = new InMemoryCache();
+        // 1. Generic String-to-String Cache
+        System.out.println("\n[1] Testing Generic Cache<String, String>...");
+        Cache<String, String> sessionCache = new InMemoryCache<>();
+        sessionCache.put("session:101", "TOKEN_ABC_123");
+        sessionCache.put("session:102", "TOKEN_XYZ_789");
 
-        // 1. SET / PUT
-        System.out.println("\n[1] Storing entries (SET)...");
-        cache.put("user:101", "Siva");
-        cache.put("user:102", "Prasad");
-        cache.put("config:theme", "dark");
-        System.out.println("Stored 3 key-value pairs.");
+        System.out.println("GET session:101 -> " + sessionCache.get("session:101"));
+        System.out.println("GET session:999 -> " + sessionCache.get("session:999") + " (Miss)");
 
-        // 2. SIZE
-        System.out.println("\n[2] Checking size (SIZE)...");
-        System.out.println("Current Cache Size: " + cache.size());
+        System.out.println("Session Cache Metrics: " + sessionCache.getStatistics());
 
-        // 3. GET
-        System.out.println("\n[3] Retrieving entries (GET)...");
-        System.out.println("GET user:101   -> " + cache.get("user:101"));
-        System.out.println("GET user:102   -> " + cache.get("user:102"));
-        System.out.println("GET user:999   -> " + cache.get("user:999") + " (Expected: null)");
+        // 2. Generic Integer-to-User Object Cache
+        System.out.println("\n[2] Testing Generic Cache<Integer, User>...");
+        Cache<Integer, User> userCache = new InMemoryCache<>();
 
-        // 4. EXISTS
-        System.out.println("\n[4] Checking key existence (EXISTS)...");
-        System.out.println("EXISTS user:101 -> " + cache.containsKey("user:101"));
-        System.out.println("EXISTS user:999 -> " + cache.containsKey("user:999"));
+        User u1 = new User(1, "Siva", "Developer");
+        User u2 = new User(2, "Prasad", "Architect");
 
-        // 5. DELETE
-        System.out.println("\n[5] Removing entry (DELETE)...");
-        boolean removed = cache.remove("user:102");
-        System.out.println("DELETE user:102 -> Removed: " + removed);
-        System.out.println("GET user:102    -> " + cache.get("user:102") + " (Expected: null)");
-        System.out.println("Current Size    -> " + cache.size());
+        userCache.put(u1.getId(), u1);
+        userCache.put(u2.getId(), u2);
 
-        // 6. CLEAR
-        System.out.println("\n[6] Clearing cache (CLEAR)...");
-        cache.clear();
-        System.out.println("Cache Cleared. New Size: " + cache.size());
-        System.out.println("EXISTS user:101 -> " + cache.containsKey("user:101"));
+        System.out.println("GET User ID 1 -> " + userCache.get(1));
+        System.out.println("GET User ID 2 -> " + userCache.get(2));
+        System.out.println("GET User ID 1 -> " + userCache.get(1) + " (Hit)");
+        System.out.println("GET User ID 9 -> " + userCache.get(9) + " (Miss)");
+
+        System.out.println("User Cache Metrics    : " + userCache.getStatistics());
+        System.out.println("User Cache Hit Ratio  : " + String.format("%.2f%%", userCache.getStatistics().getHitRatio()));
 
         System.out.println("\n==========================================");
-        System.out.println(" Phase 1 Execution Successfully Completed!");
+        System.out.println(" Phase 2 Verification Completed Successfully!");
         System.out.println("==========================================");
     }
 }
