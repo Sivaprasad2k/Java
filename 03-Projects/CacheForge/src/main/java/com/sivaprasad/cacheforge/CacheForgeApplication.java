@@ -1,84 +1,67 @@
 package com.sivaprasad.cacheforge;
 
-import com.sivaprasad.cacheforge.cache.Cache;
 import com.sivaprasad.cacheforge.cache.InMemoryCache;
 import com.sivaprasad.cacheforge.config.CacheConfig;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.sivaprasad.cacheforge.event.listener.AuditEventListener;
+import com.sivaprasad.cacheforge.event.listener.LoggingEventListener;
 
 /**
- * CacheForge Phase 5 Concurrency & Thread Safety Verification Application.
+ * CacheForge Phase 6 In-Process Event System Verification Application.
  */
 public class CacheForgeApplication {
 
     public static void main(String[] args) {
         System.out.println("==========================================");
-        System.out.println(" CacheForge Engine - Phase 5 Verification");
+        System.out.println(" CacheForge Engine - Phase 6 Verification");
         System.out.println("==========================================");
 
-        int threadCount = 10;
-        int opsPerThread = 1000;
-        int totalOperations = threadCount * opsPerThread * 3; // PUT, GET, CONTAINS
+        CacheConfig config = new CacheConfig(3, true);
+        InMemoryCache<String, String> cache = new InMemoryCache<>(config);
 
-        CacheConfig config = new CacheConfig(2000, true);
-        Cache<String, String> cache = new InMemoryCache<>(config);
+        // Register Event Listeners
+        LoggingEventListener<String, String> loggingListener = new LoggingEventListener<>();
+        AuditEventListener<String, String> auditListener = new AuditEventListener<>();
 
-        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-        CountDownLatch latch = new CountDownLatch(threadCount);
-        AtomicInteger errorCount = new AtomicInteger(0);
+        cache.getEventBus().registerListener(loggingListener);
+        cache.getEventBus().registerListener(auditListener);
 
-        System.out.printf("\n[1] Launching %d concurrent worker threads (%d ops total)...\n", threadCount, totalOperations);
+        System.out.println("\n[1] Registered 2 Event Listeners (Logging & Audit).");
+        System.out.println("Executing Cache Operations to trigger EventBus...\n");
 
-        long startTime = System.currentTimeMillis();
+        // 1. ENTRY_CREATED & ENTRY_UPDATED
+        cache.put("user:101", "Siva");
+        cache.put("user:101", "Sivaprasad");
 
-        for (int t = 0; t < threadCount; t++) {
-            final int threadId = t;
-            executor.submit(() -> {
-                try {
-                    for (int i = 0; i < opsPerThread; i++) {
-                        String key = "key:" + (i % 500); // 500 distinct keys creating high contention
-                        String value = "val:" + threadId + "-" + i;
+        // 2. Additional Entries
+        cache.put("user:102", "Prasad");
+        cache.put("user:103", "Avis");
 
-                        cache.put(key, value);
-                        cache.get(key);
-                        cache.containsKey(key);
-                    }
-                } catch (Exception e) {
-                    errorCount.incrementAndGet();
-                    System.err.println("Thread error: " + e.getMessage());
-                } finally {
-                    latch.countDown();
-                }
-            });
-        }
+        // 3. ENTRY_EVICTED (Exceeding maxCapacity 3)
+        cache.put("user:104", "Dasarp");
 
+        // 4. ENTRY_DELETED
+        cache.remove("user:104");
+
+        // 5. ENTRY_EXPIRED
+        cache.put("session:temp", "EXPIRE_VAL", 1); // 1 sec TTL
         try {
-            latch.await(); // Wait for all worker threads to complete
-            long durationMs = System.currentTimeMillis() - startTime;
-
-            System.out.println("\n[2] Multi-Threaded Stress Test Completed!");
-            System.out.println("Execution Time        : " + durationMs + " ms");
-            System.out.println("Operations / Second   : " + (long) ((double) totalOperations / (durationMs / 1000.0)) + " ops/sec");
-            System.out.println("Thread Race Errors    : " + errorCount.get());
-            System.out.println("Final Cache Size      : " + cache.size());
-
-            System.out.println("\n[3] Concurrent Metrics Summary:");
-            System.out.println(cache.getStatistics());
-
+            Thread.sleep(1200);
+            cache.get("session:temp"); // Triggers lazy expiration
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.err.println("Stress test interrupted: " + e.getMessage());
-        } finally {
-            executor.shutdown();
-            cache.shutdown();
-            System.out.println("\n[4] Thread pools cleanly shut down.");
         }
 
+        // 6. Audit Trail Summary
+        System.out.println("\n[2] Audit Event Listener Summary:");
+        System.out.println("Total Events Recorded in Audit Trail: " + auditListener.getEventCount());
+        auditListener.getAuditLog().forEach(event ->
+            System.out.println("  -> Audit Record: " + event.getType() + " for Key [" + event.getKey() + "]")
+        );
+
+        cache.shutdown();
+
         System.out.println("\n==========================================");
-        System.out.println(" Phase 5 Verification Completed Successfully!");
+        System.out.println(" Phase 6 Verification Completed Successfully!");
         System.out.println("==========================================");
     }
 }

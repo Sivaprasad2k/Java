@@ -1,6 +1,9 @@
 package com.sivaprasad.cacheforge.cache;
 
 import com.sivaprasad.cacheforge.config.CacheConfig;
+import com.sivaprasad.cacheforge.event.CacheEvent;
+import com.sivaprasad.cacheforge.event.EventBus;
+import com.sivaprasad.cacheforge.event.EventType;
 import com.sivaprasad.cacheforge.eviction.EvictionPolicy;
 import com.sivaprasad.cacheforge.eviction.LruEvictionPolicy;
 import com.sivaprasad.cacheforge.expiration.ExpirationManager;
@@ -12,8 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Thread-safe generic in-memory cache implementation supporting ConcurrentHashMap storage,
- * LRU eviction, passive/active TTL expiration, and CAS metrics.
+ * Thread-safe generic in-memory cache publishing state mutations via an EventBus.
  *
  * @param <K> Key type.
  * @param <V> Value type.
@@ -25,6 +27,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
     private final CacheStatistics statistics;
     private final EvictionPolicy<K> evictionPolicy;
     private final ExpirationManager expirationManager;
+    private final EventBus<K, V> eventBus;
 
     public InMemoryCache() {
         this(new CacheConfig(), new LruEvictionPolicy<>());
@@ -46,6 +49,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
         this.storage = new ConcurrentHashMap<>();
         this.statistics = new CacheStatistics();
         this.expirationManager = new ExpirationManager();
+        this.eventBus = new EventBus<>();
 
         // Start active background expiration scanner running every 500 ms
         this.expirationManager.startActiveCleanup(this::performActiveExpirationScan, 500);
@@ -67,19 +71,23 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
             existing.setValue(value);
             existing.setTtlSeconds(ttlSeconds);
             evictionPolicy.keyInserted(key);
+            eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_UPDATED, key, value));
         } else {
             // Check capacity limit and evict LRU entry if full
             if (storage.size() >= config.getMaxCapacity()) {
                 K evictedKey = evictionPolicy.evictKey();
                 if (evictedKey != null) {
-                    storage.remove(evictedKey);
+                    CacheEntry<V> evictedEntry = storage.remove(evictedKey);
                     statistics.recordEviction();
+                    V evictedVal = evictedEntry != null ? evictedEntry.getValue() : null;
+                    eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_EVICTED, evictedKey, evictedVal));
                 }
             }
             CacheEntry<V> newEntry = new CacheEntry<>(value);
             newEntry.setTtlSeconds(ttlSeconds);
             storage.put(key, newEntry);
             evictionPolicy.keyInserted(key);
+            eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_CREATED, key, value));
         }
         statistics.recordPut();
     }
@@ -114,6 +122,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
         if (removed != null) {
             evictionPolicy.keyRemoved(key);
             statistics.recordRemoval();
+            eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_DELETED, key, removed.getValue()));
             return true;
         }
         return false;
@@ -171,6 +180,10 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
         return statistics;
     }
 
+    public EventBus<K, V> getEventBus() {
+        return eventBus;
+    }
+
     @Override
     public void shutdown() {
         expirationManager.shutdown();
@@ -186,6 +199,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
             storage.remove(key);
             evictionPolicy.keyRemoved(key);
             statistics.recordExpiration();
+            eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_EXPIRED, key, entry.getValue()));
             return true;
         }
         return false;
@@ -201,9 +215,11 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
             }
         }
         for (K expiredKey : expiredKeys) {
-            if (storage.remove(expiredKey) != null) {
+            CacheEntry<V> expiredEntry = storage.remove(expiredKey);
+            if (expiredEntry != null) {
                 evictionPolicy.keyRemoved(expiredKey);
                 statistics.recordExpiration();
+                eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_EXPIRED, expiredKey, expiredEntry.getValue()));
             }
         }
     }
