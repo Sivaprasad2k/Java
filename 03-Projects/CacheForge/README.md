@@ -84,14 +84,14 @@ java -cp 03-Projects/CacheForge/bin com.sivaprasad.cacheforge.CacheForgeApplicat
 ```
 
 ```text
-CACHEFORGE> SET user:101 Siva
+CACHEFORGE> SET user:101 [name]
 OK
 
 CACHEFORGE> SET session:temp AUTH_TOKEN_XYZ 10
 OK (TTL: 10s)
 
 CACHEFORGE> GET user:101
-Siva
+[name]
 
 CACHEFORGE> EXISTS user:101
 (integer) 1
