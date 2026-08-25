@@ -1,0 +1,5 @@
+# CacheForge Snapshot v1
+# KEY|VALUE|EXPIRE_AT_TIMESTAMP
+user:101|Siva|-1
+user:102|Prasad|-1
+config:theme|dark|1787683437100

@@ -9,14 +9,17 @@ import com.sivaprasad.cacheforge.eviction.EvictionPolicy;
 import com.sivaprasad.cacheforge.eviction.LruEvictionPolicy;
 import com.sivaprasad.cacheforge.expiration.ExpirationManager;
 import com.sivaprasad.cacheforge.metrics.CacheStatistics;
+import com.sivaprasad.cacheforge.persistence.PersistenceManager;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Thread-safe generic in-memory cache publishing state mutations via an EventBus.
+ * Thread-safe generic in-memory cache publishing state mutations via an EventBus and supporting File Persistence.
  *
  * @param <K> Key type.
  * @param <V> Value type.
@@ -187,6 +190,16 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
 
     public CacheAnalytics<K, V> getAnalytics() {
         return new CacheAnalytics<>(storage);
+    }
+
+    public void saveSnapshot(Path filePath) throws IOException {
+        PersistenceManager<K, V> persistenceManager = new PersistenceManager<>();
+        persistenceManager.saveSnapshot(filePath, storage);
+    }
+
+    public int loadSnapshot(Path filePath) throws IOException {
+        PersistenceManager<K, V> persistenceManager = new PersistenceManager<>();
+        return persistenceManager.loadSnapshot(filePath, this);
     }
 
     @Override
