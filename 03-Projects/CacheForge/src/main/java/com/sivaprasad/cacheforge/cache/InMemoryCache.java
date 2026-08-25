@@ -1,13 +1,15 @@
 package com.sivaprasad.cacheforge.cache;
 
 import com.sivaprasad.cacheforge.config.CacheConfig;
+import com.sivaprasad.cacheforge.eviction.EvictionPolicy;
+import com.sivaprasad.cacheforge.eviction.LruEvictionPolicy;
 import com.sivaprasad.cacheforge.metrics.CacheStatistics;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Generic in-memory cache implementation storing CacheEntry objects and collecting metrics.
+ * Generic in-memory cache implementation supporting capacity bounds, LRU eviction, and statistics collection.
  *
  * @param <K> Key type.
  * @param <V> Value type.
@@ -17,16 +19,25 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
     private final Map<K, CacheEntry<V>> storage;
     private final CacheConfig config;
     private final CacheStatistics statistics;
+    private final EvictionPolicy<K> evictionPolicy;
 
     public InMemoryCache() {
-        this(new CacheConfig());
+        this(new CacheConfig(), new LruEvictionPolicy<>());
     }
 
     public InMemoryCache(CacheConfig config) {
+        this(config, new LruEvictionPolicy<>());
+    }
+
+    public InMemoryCache(CacheConfig config, EvictionPolicy<K> evictionPolicy) {
         if (config == null) {
             throw new IllegalArgumentException("CacheConfig cannot be null");
         }
+        if (evictionPolicy == null) {
+            throw new IllegalArgumentException("EvictionPolicy cannot be null");
+        }
         this.config = config;
+        this.evictionPolicy = evictionPolicy;
         this.storage = new HashMap<>();
         this.statistics = new CacheStatistics();
     }
@@ -36,11 +47,22 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
         if (key == null) {
             throw new IllegalArgumentException("Cache key cannot be null");
         }
+
         CacheEntry<V> existing = storage.get(key);
         if (existing != null) {
             existing.setValue(value);
+            evictionPolicy.keyInserted(key);
         } else {
+            // Check capacity limit and evict LRU entry if full
+            if (storage.size() >= config.getMaxCapacity()) {
+                K evictedKey = evictionPolicy.evictKey();
+                if (evictedKey != null) {
+                    storage.remove(evictedKey);
+                    statistics.recordEviction();
+                }
+            }
             storage.put(key, new CacheEntry<>(value));
+            evictionPolicy.keyInserted(key);
         }
         statistics.recordPut();
     }
@@ -53,6 +75,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
         }
         CacheEntry<V> entry = storage.get(key);
         if (entry != null) {
+            evictionPolicy.keyAccessed(key);
             statistics.recordHit();
             return entry.getValue();
         } else {
@@ -68,6 +91,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
         }
         CacheEntry<V> removed = storage.remove(key);
         if (removed != null) {
+            evictionPolicy.keyRemoved(key);
             statistics.recordRemoval();
             return true;
         }
@@ -85,6 +109,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
     @Override
     public void clear() {
         storage.clear();
+        evictionPolicy.clear();
     }
 
     @Override
