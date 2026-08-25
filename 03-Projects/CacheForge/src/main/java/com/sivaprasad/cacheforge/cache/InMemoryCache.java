@@ -1,5 +1,6 @@
 package com.sivaprasad.cacheforge.cache;
 
+import com.sivaprasad.cacheforge.analytics.CacheAnalytics;
 import com.sivaprasad.cacheforge.config.CacheConfig;
 import com.sivaprasad.cacheforge.event.CacheEvent;
 import com.sivaprasad.cacheforge.event.EventBus;
@@ -182,6 +183,10 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
 
     public EventBus<K, V> getEventBus() {
         return eventBus;
+    }
+
+    public CacheAnalytics<K, V> getAnalytics() {
+        return new CacheAnalytics<>(storage);
     }
 
     @Override
