@@ -4,6 +4,27 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Sort {
+
+    public static class Student implements Comparable<Student> {
+        int age;
+        String name;
+
+        public Student(int age, String name) {
+            this.age = age;
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name + " : " + age;
+        }
+
+        @Override
+        public int compareTo(Student that) {
+            return Integer.compare(this.age, that.age);
+        }
+    }
+
     public static void main(String[] args) {
 
         // Using Lambda Expression for Comparator
@@ -21,32 +42,6 @@ public class Sort {
 
         for (Student s : studs) {
             System.out.println(s);
-        }
-    }
-}
-
-class Student implements Comparable<Student> {
-    int age;
-    String name;
-
-    Student(int age, String name) {
-        this.age = age;
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return name + " : " + age;
-    }
-
-    @Override
-    public int compareTo(Student that) {
-        if (this.age > that.age) {
-            return 1;
-        } else if (this.age < that.age) {
-            return -1;
-        } else {
-            return 0;
         }
     }
 }
