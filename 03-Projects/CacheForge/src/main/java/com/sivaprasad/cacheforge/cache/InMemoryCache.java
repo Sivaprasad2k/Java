@@ -83,7 +83,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
                 if (evictedKey != null) {
                     CacheEntry<V> evictedEntry = storage.remove(evictedKey);
                     statistics.recordEviction();
-                    V evictedVal = evictedEntry != null ? evictedEntry.getValue() : null;
+                    V evictedVal = evictedEntry != null ? evictedEntry.peekValue() : null;
                     eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_EVICTED, evictedKey, evictedVal));
                 }
             }
@@ -217,7 +217,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
             storage.remove(key);
             evictionPolicy.keyRemoved(key);
             statistics.recordExpiration();
-            eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_EXPIRED, key, entry.getValue()));
+            eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_EXPIRED, key, entry.peekValue()));
             return true;
         }
         return false;
@@ -237,7 +237,7 @@ public class InMemoryCache<K, V> implements Cache<K, V> {
             if (expiredEntry != null) {
                 evictionPolicy.keyRemoved(expiredKey);
                 statistics.recordExpiration();
-                eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_EXPIRED, expiredKey, expiredEntry.getValue()));
+                eventBus.publishEvent(new CacheEvent<>(EventType.ENTRY_EXPIRED, expiredKey, expiredEntry.peekValue()));
             }
         }
     }

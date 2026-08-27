@@ -30,6 +30,10 @@ public class CacheEntry<V> {
         return value;
     }
 
+    public V peekValue() {
+        return value;
+    }
+
     public void setValue(V value) {
         this.value = value;
         recordAccess();

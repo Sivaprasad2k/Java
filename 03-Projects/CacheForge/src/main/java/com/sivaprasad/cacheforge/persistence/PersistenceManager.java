@@ -43,7 +43,7 @@ public class PersistenceManager<K, V> {
                 if (entry != null && !entry.isExpired()) {
                     String line = String.format("%s|%s|%d",
                             escape(mapEntry.getKey()),
-                            escape(entry.getValue()),
+                            escape(entry.peekValue()),
                             entry.getExpireAtTimestamp());
                     writer.write(line);
                     writer.newLine();

@@ -1,8 +1,8 @@
 public class Anonymousinner {
     public static void main(String x[]) {
-        A obj = new A() {
+        DemoClass obj = new DemoClass() {
             public void show() {
-                System.out.println("Annoymous Class Implemented`");
+                System.out.println("Anonymous Class Implemented");
 
             }
         };
@@ -11,7 +11,7 @@ public class Anonymousinner {
     }
 }
 
-abstract class A {
+abstract class DemoClass {
     public abstract void show();
 }
 

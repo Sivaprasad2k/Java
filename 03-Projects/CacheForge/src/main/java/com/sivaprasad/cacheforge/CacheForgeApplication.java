@@ -28,7 +28,7 @@ public class CacheForgeApplication {
             System.out.println("""
                 ==========================================
                  CacheForge Engine - System Verification
-                ==========================================" me""");
+                ===========================================""");
 
             // 1. Basic Operations
             cache.put("user:101", "Siva");

@@ -14,7 +14,7 @@ public class ReduceMethod {
 
     
         int max = nums.stream()
-                      .reduce(0, Integer::max);
+                      .reduce(Integer.MIN_VALUE, Integer::max);
 
         System.out.println("Max number: " + max);
     }

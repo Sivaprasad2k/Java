@@ -1,7 +1,7 @@
 public class Multiple {
     public static void main(String[] args) {
-        A obj1 = new A();
-        B obj2 = new B();
+        ThreadA obj1 = new ThreadA();
+        ThreadB obj2 = new ThreadB();
 
         // Call start() to execute concurrently on separate threads
         obj1.start();
@@ -9,7 +9,7 @@ public class Multiple {
     }
 }
 
-class A extends Thread {
+class ThreadA extends Thread {
     @Override
     public void run() {
         for (int i = 1; i <= 10; i++) {
@@ -24,7 +24,7 @@ class A extends Thread {
     }
 }
 
-class B extends Thread {
+class ThreadB extends Thread {
     @Override
     public void run() {
         for (int i = 1; i <= 10; i++) {

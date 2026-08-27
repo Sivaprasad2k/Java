@@ -1,9 +1,7 @@
 package com.sivaprasad.cacheforge.cli;
 
-import com.sivaprasad.cacheforge.analytics.CacheAnalytics;
 import com.sivaprasad.cacheforge.benchmark.CacheBenchmark;
 import com.sivaprasad.cacheforge.cache.InMemoryCache;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,10 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-/**
- * Interactive REPL Console Interface for CacheForge.
- * Java 17 implementation utilizing modern switch expressions and text blocks.
- */
 public class Console {
 
     private static final Path DEFAULT_SNAPSHOT_PATH = Paths.get("03-Projects/CacheForge/data/cache_snapshot.dat");

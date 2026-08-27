@@ -15,14 +15,14 @@ interface Computer {
 class Laptop implements Computer {
     @Override
     public void code() {
-        System.out.println("Code,Compile,Test,Depoly");
+        System.out.println("Code,Compile,Test,Deploy");
     }
 }
 
 class Desktop implements Computer {
     @Override
     public void code() {
-        System.out.println("Code,Compile,Test,Depoly,but faster");
+        System.out.println("Code,Compile,Test,Deploy,but faster");
     }
 }
 

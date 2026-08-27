@@ -7,7 +7,7 @@ public class Sort {
     public static void main(String[] args) {
 
         // Using Lambda Expression for Comparator
-        Comparator<Student> com = (a, b) -> a.age > b.age ? 1 : -1;
+        Comparator<Student> com = (a, b) -> Integer.compare(a.age, b.age);
 
         List<Student> studs = new ArrayList<>();
 

@@ -12,7 +12,7 @@ public class JaggedArray {
         }
         for (int n[] : nums) {
             for (int m : n) {
-                System.out.println(m + " ");
+                System.out.print(m + " ");
             }
             System.out.println();
         }
